@@ -10,18 +10,8 @@ const killWindow = (hwnd: number) => {
 };
 
 const exec = (cmd: string) => {
-  let reject: (value: string) => void;
-  let resolve: (value: string) => void;
   nodeExec(cmd, (err, stdout) => {
-    if (err) {
-      reject(err.message);
-      return;
-    }
-    resolve(stdout);
-  });
-  return new Promise<any>((res, rej) => {
-    reject = rej;
-    resolve = res;
+    if (err) return console.log(err);
   });
 };
 

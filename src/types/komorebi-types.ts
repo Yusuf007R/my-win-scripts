@@ -435,3 +435,29 @@ export type Column =
       configuration: ColumnSplit;
     };
 export type CustomLayout = Column[];
+
+export interface AppConfigs {
+  name: string;
+  identifier: Identifier;
+  float_identifiers?: FloatIdentifier[];
+  options?: Option[];
+}
+
+export interface FloatIdentifier {
+  kind: Kind;
+  id: string;
+  comment?: string;
+}
+
+export type Kind = "class" | "exe" | "title";
+export interface Identifier {
+  kind: Kind;
+  id: string;
+}
+
+export type Option =
+  | "border_overflow"
+  | "force"
+  | "layered"
+  | "object_name_change"
+  | "tray_and_multi_window";

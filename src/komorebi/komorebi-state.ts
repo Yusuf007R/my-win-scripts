@@ -9,7 +9,11 @@ class KomorebiState {
     createServer((stream) => {
       stream.on("data", (data) => {
         if (data.byteLength < 1000) return;
-        this.setState(JSON.parse(data.toString().split("\n")[0])["state"]);
+        try {
+          this.setState(JSON.parse(data.toString().split("\n")[0])["state"]);
+        } catch (error) {
+          console.log(error, data.toString());
+        }
       });
     }).listen("\\\\.\\pipe\\" + PIPE_NAME, () => {
       console.log("NamedPipe: listening");

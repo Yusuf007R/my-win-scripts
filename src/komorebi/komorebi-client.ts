@@ -1,6 +1,12 @@
-import { KomorebiCommandsType } from "../types/komorebi-types";
+import {
+  AppConfigs,
+  KomorebiCommandsType,
+  Option,
+} from "../types/komorebi-types";
 import { Socket } from "node:net";
 import KomorebiState from "./komorebi-state";
+import axios from "axios";
+import YAML from "yaml";
 
 type SocketQueueMsg = { msg: string };
 
@@ -13,6 +19,7 @@ class KomorebiClient {
 
   constructor(onConnect?: () => void) {
     this.tcpClient.connect(69, "127.0.0.1", () => {
+      this.appConfigurations();
       onConnect && onConnect();
       this.state = new KomorebiState((pipe) => {
         this.run.AddSubscriber(pipe);
@@ -67,6 +74,30 @@ class KomorebiClient {
       currentWorkspaceIndex,
       (currentWorkspace.container_padding ?? 0) + num,
     ]);
+  }
+
+  private async appConfigurations() {
+    const file = await axios.get(
+      "https://raw.githubusercontent.com/LGUG2Z/komorebi-application-specific-configuration/master/applications.yaml"
+    );
+    const configs = YAML.parse(file.data) as AppConfigs[];
+
+    configs.forEach((config) => {
+      config.options?.forEach((option) => {
+        const tempConfigs = {
+          border_overflow: this.run.IdentifyBorderOverflowApplication,
+          force: this.run.ManageRule,
+          tray_and_multi_window: this.run.IdentifyTrayApplication,
+          layered: this.run.IdentifyLayeredApplication,
+          object_name_change: this.run.IdentifyObjectNameChangeApplication,
+        };
+
+        tempConfigs[option]([config.identifier.kind, config.identifier.id]);
+      });
+      config.float_identifiers?.forEach((float) => {
+        this.run.FloatRule([float.kind, float.id]);
+      });
+    });
   }
 }
 
