@@ -20,12 +20,7 @@ export const komorebiClient = new KomorebiClient(() => {
   komorebiClient.run.WindowHidingBehaviour("Minimize");
 
   komorebiClient.run.CrossMonitorMoveBehaviour("Insert");
-  // komorebiClient.run.InvisibleBorders({
-  //   top: 0,
-  //   right: 14,
-  //   bottom: 7,
-  //   left: 7,
-  // });
+
   komorebiClient.run.FocusFollowsMouse(["Windows", true]);
   // komorebiClient.run.ActiveWindowBorderColour(["Single", 245, 0, 200]);
   // komorebiClient.run.ActiveWindowBorder(true);
@@ -50,6 +45,9 @@ export const komorebiClient = new KomorebiClient(() => {
     hotkeyManager.addHotkey(`alt+shift+${vimKeys[key]}`, () =>
       komorebiClient.run.MoveWindow(key)
     );
+    hotkeyManager.addHotkey(`ctrl+shift+${vimKeys[key]}`, () => {
+      komorebiClient.risizeWindow(key);
+    });
   });
 
   hotkeyManager.addHotkey("alt+shift+c", () => {
@@ -92,38 +90,5 @@ export const komorebiClient = new KomorebiClient(() => {
     win32.exec("komorebic state |code -")
   );
 
-  hotkeyManager.addHotkey("ctrl+shift+l", () => {
-    const workspace = komorebiClient.state.currentWorkspace[0];
-    if (workspace.containers.elements.length < 2) return;
-    if (workspace.containers.focused === 0)
-      komorebiClient.run.ResizeWindowEdge(["Right", "Increase"]);
-
-    komorebiClient.run.ResizeWindowEdge(["Left", "Decrease"]);
-  });
-
-  hotkeyManager.addHotkey("ctrl+shift+h", () => {
-    const workspace = komorebiClient.state.currentWorkspace[0];
-    if (workspace.containers.elements.length < 2) return;
-    if (workspace.containers.focused === 0)
-      komorebiClient.run.ResizeWindowEdge(["Right", "Decrease"]);
-
-    komorebiClient.run.ResizeWindowEdge(["Left", "Increase"]);
-  });
-
-  hotkeyManager.addHotkey("ctrl+shift+k", () => {
-    const workspace = komorebiClient.state.currentWorkspace[0];
-    if (workspace.containers.elements.length < 3) return;
-    if (workspace.containers.elements.length - workspace.containers.focused > 1)
-      return komorebiClient.run.ResizeWindowEdge(["Down", "Decrease"]);
-
-    komorebiClient.run.ResizeWindowEdge(["Up", "Increase"]);
-  });
-  hotkeyManager.addHotkey("ctrl+shift+j", () => {
-    const workspace = komorebiClient.state.currentWorkspace[0];
-    if (workspace.containers.elements.length < 3) return;
-    if (workspace.containers.elements.length - workspace.containers.focused > 1)
-      return komorebiClient.run.ResizeWindowEdge(["Down", "Increase"]);
-
-    komorebiClient.run.ResizeWindowEdge(["Up", "Decrease"]);
-  });
+  hotkeyManager.addHotkey("alt+shift+enter", () => win32.exec("wt"));
 });

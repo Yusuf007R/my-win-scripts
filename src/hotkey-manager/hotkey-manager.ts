@@ -40,12 +40,7 @@ class HotkeyManager {
       this.pressedKeys[e.scanCode] = e.state === "DOWN";
       if (e.state === "UP") return false;
       const numOfPressedKeys = Object.values(this.pressedKeys).reduce(
-        (prev, next) => {
-          if (next) {
-            return prev + 1;
-          }
-          return prev;
-        },
+        (prev, next) => (next ? prev + 1 : prev),
         0
       );
 
@@ -57,6 +52,7 @@ class HotkeyManager {
         hotkey.callback();
         return true;
       }
+      return false;
     });
   }
 

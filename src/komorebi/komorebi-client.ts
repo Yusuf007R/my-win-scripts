@@ -1,12 +1,14 @@
 import {
   AppConfigs,
   KomorebiCommandsType,
-  Option,
+  OperationDirection,
+  Sizing,
 } from "../types/komorebi-types";
 import { Socket } from "node:net";
 import KomorebiState from "./komorebi-state";
 import axios from "axios";
 import YAML from "yaml";
+import customConfigs from "./custom-configs";
 
 type SocketQueueMsg = { msg: string };
 
@@ -81,8 +83,7 @@ class KomorebiClient {
       "https://raw.githubusercontent.com/LGUG2Z/komorebi-application-specific-configuration/master/applications.yaml"
     );
     const configs = YAML.parse(file.data) as AppConfigs[];
-
-    configs.forEach((config) => {
+    const loadConfigs = (config: AppConfigs) => {
       config.options?.forEach((option) => {
         const tempConfigs = {
           border_overflow: this.run.IdentifyBorderOverflowApplication,
@@ -97,7 +98,46 @@ class KomorebiClient {
       config.float_identifiers?.forEach((float) => {
         this.run.FloatRule([float.kind, float.id]);
       });
-    });
+    };
+    configs.forEach(loadConfigs);
+    customConfigs.forEach(loadConfigs);
+  }
+
+  risizeWindow(direction: OperationDirection) {
+    const workspace = this.state.currentWorkspace[0];
+
+    if (direction === "Up" || direction === "Down") {
+      if (workspace.containers.elements.length < 3) return;
+
+      const isNotLast =
+        workspace.containers.elements.length - workspace.containers.focused > 1;
+
+      const size: Sizing =
+        direction === "Up"
+          ? isNotLast
+            ? "Decrease"
+            : "Increase"
+          : isNotLast
+          ? "Increase"
+          : "Decrease";
+
+      return this.run.ResizeWindowAxis(["Vertical", size]);
+    }
+
+    if (workspace.containers.elements.length < 2) return;
+
+    const isFirst = workspace.containers.focused === 0;
+
+    this.run.ResizeWindowAxis([
+      "Horizontal",
+      direction === "Right"
+        ? isFirst
+          ? "Increase"
+          : "Decrease"
+        : isFirst
+        ? "Decrease"
+        : "Increase",
+    ]);
   }
 }
 
